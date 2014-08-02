@@ -6,7 +6,6 @@ abstract class Model {
   
   gl.Buffer _normalsBuffer;
   gl.Buffer _verticesBuffer;
-  gl.Buffer _colorsBuffer;
   gl.Buffer _indicesBuffer;
   
   gl.RenderingContext get context => view.context;
@@ -14,7 +13,6 @@ abstract class Model {
   Model(this.view) {
     _normalsBuffer = null;
     _verticesBuffer = null;
-    _colorsBuffer = null;
     _indicesBuffer = null;
     
     position = new vec.Vector3(0.0, 0.0, 0.0);
@@ -27,34 +25,23 @@ abstract class Model {
     if (_verticesBuffer != null) {
       context.deleteBuffer(_verticesBuffer);
     }
-    if (_colorsBuffer != null) {
-      context.deleteBuffer(_colorsBuffer);
-    }
     if (_indicesBuffer != null) {
       context.deleteBuffer(_indicesBuffer);
     }
   }
   
   void draw() {    
-    vec.Matrix3 oldNormal = new vec.Matrix3.copy(view.normalMatrix);
     vec.Matrix4 oldModel = new vec.Matrix4.copy(view.modelMatrix);
-    
     vec.Matrix4 newModel = new vec.Matrix4.copy(view.modelMatrix);
-    vec.Matrix3 newNormal = new vec.Matrix3.identity();
     
-    newModel.translate(position.x, position.y, position.z);
-    newNormal.copyInverse(newModel.getRotation());
-    newNormal.transpose();
+    newModel *= new vec.Matrix4.identity().translate(position.x, position.y,
+        position.z);
     
     view.modelMatrix = newModel;
-    view.normalMatrix = newNormal;
     
     context.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
     context.vertexAttribPointer(view._vertexPositionId, 3, gl.FLOAT, false, 0,
         0);
-    
-    context.bindBuffer(gl.ARRAY_BUFFER, colorsBuffer);
-    context.vertexAttribPointer(view._vertexColorId, 4, gl.FLOAT, false, 0, 0);
     
     context.bindBuffer(gl.ARRAY_BUFFER, normalsBuffer);
     context.vertexAttribPointer(view._vertexNormalId, 3, gl.FLOAT, false, 0, 0);
@@ -70,14 +57,12 @@ abstract class Model {
     }
     
     view.modelMatrix = oldModel;
-    view.normalMatrix = oldNormal;
   }
   
   int get drawMethod => gl.TRIANGLES;
   
   Float32List get normals;
   Float32List get vertices;
-  Float32List get colors;
   Uint16List get indices => null;
   
   gl.Buffer get normalsBuffer {
@@ -90,12 +75,6 @@ abstract class Model {
     if (_verticesBuffer != null) return _verticesBuffer;
     _verticesBuffer = _createFloatBuffer(vertices);
     return _verticesBuffer;
-  }
-  
-  gl.Buffer get colorsBuffer {
-    if (_colorsBuffer != null) return _colorsBuffer;
-    _colorsBuffer = _createFloatBuffer(colors);
-    return _colorsBuffer;
   }
   
   gl.Buffer get indicesBuffer {

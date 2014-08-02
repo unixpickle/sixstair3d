@@ -9,53 +9,15 @@
     <script async src="packages/browser/dart.js"></script>
     
     <link rel="stylesheet" href="sixstair3d.css">
-    
-    <script id="shader-fs" type="x-shader/x-fragment">
-    precision mediump float;
-
-    varying vec4 fragmentColor;
-    varying float fragmentBrightness;
-
-    void main(void) {
-      gl_FragColor = vec4(fragmentColor.rgb * fragmentBrightness,
-          fragmentColor.a);
-    }
-    </script>
-  
-    <script id="shader-vs" type="x-shader/x-vertex">
-    precision mediump float;
-
-    attribute vec3 vertexPosition;
-    attribute vec4 vertexColor;
-    attribute vec3 vertexNormal;
-    
-    uniform float ambientShade;
-    uniform mat4 modelMatrix;
-    uniform mat3 normalMatrix;
-    uniform mat4 projectionMatrix;
-    
-    uniform vec3 lightingDirection;
-    uniform float lightingShade;
-    
-    // forward declarations
-    varying vec4 fragmentColor;
-    varying float fragmentBrightness;
-    
-    void main(void) {
-      gl_Position = projectionMatrix * modelMatrix *
-          vec4(vertexPosition, 1.0);
-      vec3 normal = normalMatrix * vertexNormal;
-      float brightness = max(dot(normal, lightingDirection), 0.0);
-      fragmentColor = vertexColor;
-      fragmentBrightness = min(ambientShade + lightingShade * brightness, 1.0);
-    }
-    </script>
   </head>
   <body>
-    <h1>Sixstair3d</h1>
+    <center>
+      <h1>Sixstair3d</h1>
     
-    <canvas id="canvas" style="border: none;" width="500" height="500">
-      You need to update your browser.
-    </canvas>
+      <canvas id="canvas" style="border: none; width: 500px; height: 500px"
+              width="1000" height="1000">
+        You need to update your browser.
+      </canvas>
+    </center>
   </body>
 </html>

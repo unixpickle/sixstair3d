@@ -35,6 +35,7 @@
     uniform mat4 projectionMatrix;
     
     uniform vec3 lightingDirection;
+    uniform float lightingShade;
     
     // forward declarations
     varying vec4 fragmentColor;
@@ -46,7 +47,7 @@
       vec3 normal = normalMatrix * vertexNormal;
       float brightness = max(dot(normal, lightingDirection), 0.0);
       fragmentColor = vertexColor;
-      fragmentBrightness = min(ambientShade + brightness, 1.0);
+      fragmentBrightness = min(ambientShade + lightingShade * brightness, 1.0);
     }
     </script>
   </head>

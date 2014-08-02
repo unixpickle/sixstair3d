@@ -15,6 +15,7 @@ class PuzzleView {
   gl.UniformLocation _normalMatrixId;
   gl.UniformLocation _ambientShadeId;
   gl.UniformLocation _lightingDirectionId;
+  gl.UniformLocation _lightingShadeId;
   
   vec.Matrix3 _normalMatrix;
   vec.Matrix4 _modelMatrix;
@@ -48,6 +49,10 @@ class PuzzleView {
     context.uniform3fv(_lightingDirectionId, vector.storage);
   }
   
+  void set lightingShade(double x) {
+    context.uniform1f(_lightingShadeId, x);
+  }
+  
   num get width => canvas.width;
   num get height => canvas.height;
   
@@ -60,13 +65,14 @@ class PuzzleView {
     _bindShaderAttributes();
     
     vec.Matrix4 projection = new vec.Matrix4.identity();
-    vec.setPerspectiveMatrix(projection, PI / 2, height / width, -0.1, -100);
+    vec.setPerspectiveMatrix(projection, PI / 2, height / width, 0.1, 100);
     projectionMatrix = projection;
     
     modelMatrix = new vec.Matrix4.identity();
     normalMatrix = new vec.Matrix3.identity();
-    ambientShade = 0.3;
-    lightingDirection = new vec.Vector3(-1.0, -1.0, -3.0);
+    ambientShade = 0.1;
+    lightingDirection = new vec.Vector3(1.0, 1.0, 1.0);
+    lightingShade = 0.9;
   }
   
   void draw() {
@@ -74,7 +80,7 @@ class PuzzleView {
     context.clearColor(0, 0.5, 0, 1);
     context.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
-    var ball = new Ball(this, 2.0, 10, new vec.Vector4(1.0, 0.0, 0.0, 1.0));
+    var ball = new Ball(this, 1, 20, new vec.Vector4(1.0, 0.0, 0.0, 1.0));
     ball.position = new vec.Vector3(0.0, 0.0, -5.0);
     ball.draw();
     ball.dispose();
@@ -132,6 +138,7 @@ class PuzzleView {
         'projectionMatrix');
     _lightingDirectionId = context.getUniformLocation(program,
         'lightingDirection');
+    _lightingShadeId = context.getUniformLocation(program, 'lightingShade');
     _modelMatrixId = context.getUniformLocation(program, 'modelMatrix');
     _normalMatrixId = context.getUniformLocation(program, 'normalMatrix');
     _ambientShadeId = context.getUniformLocation(program, 'ambientShade');

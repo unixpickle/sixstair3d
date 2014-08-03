@@ -65,7 +65,7 @@ class PuzzleView {
     modelView.pushState();
     modelView.translate(new vec.Vector3(0.0, 0.0, PUZZLE_Z));
     modelView.rotate(new vec.Vector3(0.0, 0.0, 1.0),
-            puzzleRep.flipRotation * PI);
+        puzzleRep.flipRotation * PI);
     modelView.rotate(new vec.Vector3(0.0, 1.0, 0.0), _rotation);
     
     enableBlend();

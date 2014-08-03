@@ -22,6 +22,10 @@ class ModelView {
     current = _current.translate(trans);
   }
   
+  void rotate(vec.Vector3 axis, double angle) {
+    current = _current.rotate(axis, angle);
+  }
+  
   void pushState() {
     _stack.add(current.clone());
   }

@@ -1,6 +1,8 @@
 part of sixstair_view;
 
 class TubeModel extends Model {
+  static const double SPACING = 0.1;
+  
   final double radius;
   final double height;
 
@@ -14,7 +16,7 @@ class TubeModel extends Model {
     normals = new Float32List(6 * 3 * steps);
     
     double stepScale = PI * 2 / steps.toDouble();
-    double heightOffset = top ? height / 2 + 0.2 : -(height / 2 + 0.2);
+    double heightOffset = top ? height / 2 + SPACING : -(height / 2 + SPACING);
     
     // generate the cylinder body
     for (int i = 0; i < steps; ++i) {

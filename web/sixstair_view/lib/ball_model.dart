@@ -1,13 +1,12 @@
 part of sixstair_view;
 
-class Ball extends Model {
+class BallModel extends Model {
   final double radius;
-  final vec.Vector4 color;
-  
   Float32List vertices;
   Float32List normals;
   
-  Ball(PuzzleView v, this.radius, this.color, {int steps: 30}) : super(v) {
+  BallModel(gl.RenderingContext c, num _radius, {int steps: 30}) : super(c),
+      radius = _radius.toDouble() {
     int capacity = steps * steps;
     vertices = new Float32List(capacity * 3 * 6);
     normals = new Float32List(capacity * 3 * 6);
@@ -52,10 +51,5 @@ class Ball extends Model {
   
   vec.Vector3 coordinate(num lat, num lon) {
     return new vec.Vector3(sin(lat), cos(lat) * cos(lon), cos(lat) * sin(lon));
-  }
-  
-  void draw() {
-    view.objectColor = color;
-    super.draw();
   }
 }

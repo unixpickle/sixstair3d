@@ -1,5 +1,5 @@
 import 'dart:html';
-import 'view.dart';
+import 'sixstair_view/sixstair_view.dart';
 
 PuzzleView mainView;
 

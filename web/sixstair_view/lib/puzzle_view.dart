@@ -4,7 +4,7 @@ class PuzzleView {
   static const double RADIUS = 1.5;
   static const double BALL_RADIUS = 0.5;
   static const double TUBE_RADIUS = 0.6;
-  static const double TUBE_HEIGHT_PADDING = 0.1;
+  static const double PUZZLE_Z = -13.0;
   
   final CanvasElement canvas;
   final gl.RenderingContext context;
@@ -29,7 +29,8 @@ class PuzzleView {
   PuzzleView(CanvasElement c) : canvas = c,
       context = c.getContext3d(alpha: true), topTubes = <TubeModel>[],
       bottomTubes = <TubeModel>[], _eventSubs = <StreamSubscription>[] {
-    shaders = new Shaders(context);    
+    if (context == null) throw new UnsupportedError('WebGL unsupported!');
+    shaders = new Shaders(context);
     modelView = new ModelView(context,
         context.getUniformLocation(shaders.program, 'modelMatrix'));
     
@@ -62,30 +63,42 @@ class PuzzleView {
     context.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     modelView.pushState();
-    modelView.translate(new vec.Vector3(0.0, 0.0, -10.0));
+    modelView.translate(new vec.Vector3(0.0, 0.0, PUZZLE_Z));
+    modelView.rotate(new vec.Vector3(0.0, 0.0, 1.0),
+            puzzleRep.flipRotation * PI);
     modelView.rotate(new vec.Vector3(0.0, 1.0, 0.0), _rotation);
     
     enableBlend();
     
+    modelView.pushState();
+    modelView.rotate(new vec.Vector3(0.0, 1.0, 0.0),
+        -puzzleRep.topRotation * PI * 2);
     for (TubeModel t in topTubes) {
       t.draw(modelView, shaders.attributes);
     }
+    modelView.popState();
     
+    modelView.pushState();
+    modelView.rotate(new vec.Vector3(0.0, 1.0, 0.0),
+            puzzleRep.bottomRotation * PI * 2);
     for (TubeModel t in bottomTubes) {
       t.draw(modelView, shaders.attributes);
     }
+    modelView.popState();
     
     enableDepth();
 
-    List<vec.Vector4> ballColors = [new vec.Vector4(0.0, 0.0, 0.0, 1.0),
-                                    new vec.Vector4(1.0, 1.0, 1.0, 1.0),
-                                    new vec.Vector4(0.0, 0.0, 1.0, 1.0),
-                                    new vec.Vector4(1.0, 1.0, 0.0, 1.0),
-                                    new vec.Vector4(0.0, 1.0, 0.0, 1.0),
-                                    new vec.Vector4(1.0, 0.0, 0.0, 1.0)];
+    List<vec.Vector3> ballColors = [new vec.Vector3(0.0, 0.0, 0.0),
+                                    new vec.Vector3(1.0, 1.0, 1.0),
+                                    new vec.Vector3(0.0, 0.0, 1.0),
+                                    new vec.Vector3(1.0, 1.0, 0.0),
+                                    new vec.Vector3(0.0, 1.0, 0.0),
+                                    new vec.Vector3(1.0, 0.0, 0.0)];
     
     for (BallRep b in puzzleRep.balls) {
-      ball.color = ballColors[b.color - 1] * 0.8;
+      vec.Vector3 color = ballColors[b.color - 1];
+      ball.color = new vec.Vector4(min(color.r + 0.1, 1.0),
+          min(color.g + 0.1, 1.0), min(color.b + 0.1, 1.0), 1.0);
       ball.position = new vec.Vector3(b.x, b.y, b.z);
       ball.draw(modelView, shaders.attributes);
     }
@@ -115,13 +128,13 @@ class PuzzleView {
       TubeModel t = new TubeModel(context, TUBE_RADIUS, height, true);
       t.position = new vec.Vector3(RADIUS * -cos(angle), 0.0,
           RADIUS * sin(angle));
-      t.color = new vec.Vector4(0.5, 0.5, 0.5, 0.5);
+      t.color = tubeColor;
       topTubes.add(t);
       
       t = new TubeModel(context, TUBE_RADIUS, height, false);
       t.position = new vec.Vector3(RADIUS * -cos(angle), 0.0,
           RADIUS * sin(angle));
-      t.color = new vec.Vector4(0.5, 0.5, 0.5, 0.5);
+      t.color = tubeColor;
       bottomTubes.add(t);
     }
   }
@@ -136,6 +149,7 @@ class PuzzleView {
     if (!_isPressed) return;
     
     double len = (event.client.x - _clickStart).toDouble();
+    if (puzzleRep.isFlipped) len *= -1;
     _rotation = (_origRotation + len / 100).toDouble();
     
     draw();
